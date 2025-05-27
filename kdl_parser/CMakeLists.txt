@@ -112,6 +112,14 @@ else()
     ${PROJECT_NAME} PUBLIC urdfdom::urdfdom orocos-kdl::orocos-kdl
                            tinyxml::tinyxml tinyxml2::tinyxml2)
 
+  set(KDL_PARSER_PUBLIC_HEADERS "include/kdl_parser/kdl_parser.hpp"
+                                "include/kdl_parser/visibility_control.hpp")
+
+  set_target_properties(${PROJECT_NAME}
+                        PROPERTIES PUBLIC_HEADER "${KDL_PARSER_PUBLIC_HEADERS}")
+  install(TARGETS ${PROJECT_NAME}
+          PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/kdl_parser)
+
   if(NOT BUILD_TESTING STREQUAL OFF)
     enable_testing()
 

@@ -25,18 +25,17 @@ class kdl_parserRecipe(ConanFile):
     exports_sources = (
         "CMakeLists.txt",
         "src/*",
-        "tests/*",
+        "test/*",
         "include/*",
     )
 
     def requirements(self):
-        self.requires("orocos-kdl/[>=1.5.1 <2]")
-        self.requires("tinyxml/[>=2.6.0 <3]")
-        self.requires("tinyxml2/[>=11.0.0 <13.0.0]")
-        self.requires("urdfdom/[>=3.1.1 <5.0.0]")
-        self.requires("urdfdom_headers/[>=1.1.1 <2]")
+        self.requires("orocos-kdl/[>=1.5.1 <2]", transitive_headers=True, transitive_libs=True)
+        self.requires("tinyxml/[>=2.6.0 <3]", transitive_headers=True)
+        self.requires("tinyxml2/[>=11.0.0 <13.0.0]", transitive_headers=True)
+        self.requires("urdfdom/[>=3.1.1 <5.0.0]", transitive_headers=True)
         self.tool_requires("cmake/[>=3.12 <5]")
-        self.test_requires("gtest/[>=1.11]")
+        self.test_requires("gtest/[>=1.11 <2.0]")
 
     def validate(self):
         check_min_cppstd(self, "14")
@@ -66,6 +65,9 @@ class kdl_parserRecipe(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
+        if can_run(self):
+            cmake.test()
+        cmake.install()
 
     def package(self):
         cmake = CMake(self)
