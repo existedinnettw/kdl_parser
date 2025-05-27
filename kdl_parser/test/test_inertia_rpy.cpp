@@ -1,36 +1,36 @@
 /*********************************************************************
-* Software License Agreement (BSD License)
-*
-*  Copyright (c) 2015 Open Source Robotics Foundation, Inc.
-*  All rights reserved.
-*
-*  Redistribution and use in source and binary forms, with or without
-*  modification, are permitted provided that the following conditions
-*  are met:
-*
-*   * Redistributions of source code must retain the above copyright
-*     notice, this list of conditions and the following disclaimer.
-*   * Redistributions in binary form must reproduce the above
-*     copyright notice, this list of conditions and the following
-*     disclaimer in the documentation and/or other materials provided
-*     with the distribution.
-*   * Neither the name of the copyright holder nor the names of its
-*     contributors may be used to endorse or promote products derived
-*     from this software without specific prior written permission.
-*
-*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-*  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-*  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-*  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-*  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-*  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-*  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-*  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-*  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-*  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-*  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-*  POSSIBILITY OF SUCH DAMAGE.
-*********************************************************************/
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2015 Open Source Robotics Foundation, Inc.
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of the copyright holder nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ *********************************************************************/
 
 /* Author: Jackie Kay */
 
@@ -41,12 +41,19 @@
 #include <kdl/jntarray.hpp>
 #include <kdl/chainidsolver_recursive_newton_euler.hpp>
 
-#include <ros/ros.h>
-#include <ros/console.h>
 #include "kdl_parser/kdl_parser.hpp"
 
+#ifdef HAS_ROS
+#include <ros/ros.h>
+#else
+// forward ROS warnings and errors to stderr
+#define ROS_DEBUG(...) fprintf(stdout, __VA_ARGS__);
+#define ROS_ERROR(...) fprintf(stderr, __VA_ARGS__);
+#define ROS_WARN(...) fprintf(stderr, __VA_ARGS__);
+#endif
+
 int g_argc;
-char ** g_argv;
+char **g_argv;
 
 class TestInertiaRPY : public testing::Test
 {
@@ -63,11 +70,11 @@ protected:
   }
 };
 
-
-TEST_F(TestInertiaRPY, test_torques) {
+TEST_F(TestInertiaRPY, test_torques)
+{
   // workaround for segfault issue with parsing 2 trees instantiated on the stack
-  KDL::Tree * tree_1 = new KDL::Tree;
-  KDL::Tree * tree_2 = new KDL::Tree;
+  KDL::Tree *tree_1 = new KDL::Tree;
+  KDL::Tree *tree_2 = new KDL::Tree;
   KDL::JntArray torques_1;
   KDL::JntArray torques_2;
 
@@ -112,13 +119,24 @@ TEST_F(TestInertiaRPY, test_torques) {
   SUCCEED();
 }
 
-int main(int argc, char ** argv)
+int main(int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "test_kdl_parser");
-  for (size_t i = 0; i < argc; ++i) {
+#ifdef HAS_ROS
+  ros::init(argc, argv, "test_inertia_rpy");
+#endif
+  for (size_t i = 0; i < argc; ++i)
+  {
     std::cout << argv[i] << std::endl;
   }
+
+  if (argc < 3)
+  {
+    static const char *default_argv[] = {argv[0], RPY_URDF1, RPY_URDF2};
+    argc = 3;
+    argv = const_cast<char **>(default_argv);
+  }
+
   g_argc = argc;
   g_argv = argv;
   return RUN_ALL_TESTS();
