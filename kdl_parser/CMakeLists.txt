@@ -99,6 +99,7 @@ else()
   find_package(tinyxml REQUIRED CONFIG)
   find_package(tinyxml2 REQUIRED CONFIG)
   add_library(${PROJECT_NAME} src/kdl_parser.cpp)
+
   if(WIN32)
     set(BUILD_SHARED_LIBS ON)
     target_compile_definitions(${PROJECT_NAME} PUBLIC "KDL_PARSER_BUILDING_DLL")

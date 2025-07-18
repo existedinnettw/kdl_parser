@@ -45,10 +45,6 @@ class kdl_parserRecipe(ConanFile):
             self.options.rm_safe("fPIC")
 
     def configure(self):
-        if self.settings.os == "Windows" and not self.options.shared:
-            raise ConanInvalidConfiguration(
-                "Static libraries are not supported on Windows. Please set option 'shared=True'."
-            )
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
@@ -59,6 +55,8 @@ class kdl_parserRecipe(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
         tc = CMakeToolchain(self)
+        if(not self.options.shared):
+            tc.preprocessor_definitions["KDL_PARSER_STATIC"] = ""
         tc.generate()
 
     def build(self):
@@ -75,3 +73,5 @@ class kdl_parserRecipe(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["kdl_parser"]
+        if not self.options.shared:
+            self.cpp_info.defines = ["KDL_PARSER_STATIC"]
